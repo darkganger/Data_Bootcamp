@@ -1,0 +1,65 @@
+install.packages("nycflights13")
+install.packages("tidyverse")
+install.packages("dplyr")
+
+library(tidyverse)
+library(dplyr)
+library(nycflights13)
+
+#Question 1 : The most distances of each carrier Top 4.
+Question1 <- flights |>
+  select(carrier, distance) |>
+  group_by(carrier) |>
+  summarize(max_distance = max(distance)) |>
+  arrange(desc(max_distance)) |>
+  left_join(airlines, by="carrier") |>
+  head(4)
+
+print(Question1)
+
+#Question 2 : How long a flight between quarters
+Quarters_group <- 
+  mutate(flights,Quarters = case_when(month %in% c(1,2,3,4) ~ "q1", 
+                            month %in% c(5,6,7,8) ~ "q2",
+                            month %in% c(9,10,11,12) ~ "q3"))
+
+Question2 <- Quarters_group |>
+  select(Quarters, hour, minute) |>
+  group_by(Quarters) |>
+  summarize(sum_day = sum(hour)/24,
+            sum_hour = sum(minute)/60) 
+  
+
+print(Question2)
+
+#Question 3 : Which airline is the most airtime in Quarter 2
+Question3 <- 
+  Quarters_group |>
+  filter(Quarters == "q2", !is.na(air_time)) |>
+  select(carrier, air_time) |>
+  arrange(desc(air_time)) |>
+  head(1)
+
+print(Question3)
+
+#Question 4 : Which airline is the most delayed in Quarter 1 (Top 5)
+Question4 <- 
+  Quarters_group |>
+  group_by(carrier) |>
+  filter(Quarters == "q1") |>
+  select(carrier, arr_delay) |>
+  summarize(sum_delay = sum(arr_delay, na.rm = T)/60) |>
+  arrange(desc(sum_delay)) |>
+  left_join(airlines, by = "carrier") |>
+  head(5)
+
+print(Question4)
+
+Question 5 : Which the most destination airport favor in Quarter 3
+Question5 <-  Quarters_group|>
+  filter(Quarters == "q3") |>
+  count(dest) |>
+  arrange(desc(n)) |>
+  head(10) 
+
+print (Question5)
