@@ -1,0 +1,77 @@
+#Create Variable
+
+Win <- 0
+Lose <- 0
+Draw <- 0
+Total <- 0
+Game <- TRUE
+
+#Game Intro
+
+print("Welcome to Rocks Paper Scissors")
+
+print("Player What your name ?")
+player_name <- readLines("stdin",n=1)
+print(paste("Hello Player", player_name, "Glad to see you"))
+
+print("Would you like to play with me ?")
+print("1.Yes 2.No")
+
+start <- as.numeric(readLines(con="stdin", n=1))
+
+if(start == 1) {
+  print(paste("Great !! Player", player_name, "Let's the game begin"))
+}
+if(start == 2) { 
+  print(paste("Player", player_name, "I'm hope to play with you soon"))
+break}  
+
+#Start Game
+
+while(Game == TRUE) {
+  cat("\nHello there Player", player_name, 
+      "\nWhat do you choose between '(R)ocks', '(P)aper', (S)cissors ",
+      "\nIf you done. type (Q)uit to endgame :")
+  
+  player_fight <- readLines("stdin",n=1)
+  Weapon <- c("Rocks","Scissors","Paper")
+  print(paste("Bot:", Bot <- sample(Weapon,size = 1)))
+ 
+
+   if ((player_fight =="R" & Bot == "Rocks") || 
+        (player_fight == "P" & Bot == "Paper") ||
+         (player_fight =="S" & Bot == "Scissors")){
+  print(paste("Furiyoh you Draw !!")) 
+  Draw <- Draw + 1
+  Total <- Total + 1}
+
+  else if ((player_fight =="R" & Bot == "Scissors") || 
+         (player_fight == "P" & Bot == "Rocks") ||
+         (player_fight =="S" & Bot == "Paper")){
+  print(paste("You got 1 Point"))
+  Win <- Win + 1
+  Total <- Total + 1} 
+
+  else if ((Bot == "Rocks" & player_fight == "S") ||
+         (Bot == "Paper" & player_fight == "R") ||      
+         (Bot == "Scissors" & player_fight == "P")){
+  print(paste("You lose !! Try again !!"))
+  Lose <- Lose + 1
+  Total <- Total + 1
+}
+  else if (player_fight == "Q") {break}
+  
+  else {
+      print("Hey !! Please select  'R','P','S' to fight with me or 'Q' to quit ")
+    break }
+}
+
+#Summary
+
+Result <- data.frame (Win,Lose,Draw)
+Sum <- sum(Win,Lose,Draw)
+if (player_fight == "Q"){
+  print(Result)
+  print(paste("Total Playing :", Total))
+}
+
