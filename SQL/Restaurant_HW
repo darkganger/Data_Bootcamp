@@ -1,0 +1,157 @@
+--restaurant owner
+--5 table
+--1fact,4 dimension
+-- search google how to add foreign key
+-- write SQL 3-5 Queries analyze data
+-- 1 sub queries / with clause
+
+.mode markdown
+.head on
+
+-- fact table --
+
+CREATE TABLE Food_Charism (
+  	Food_Charism_ID TexT PRIMARY KEY not NULL,
+  	food_box_id int,
+  	box_rate_id int,
+  	purchase_order_id int,
+  	total_sales_id int,
+  	Best_Seller Boolean,
+  	 FOREIGN KEY (food_box_id) REFERENCES Food_Box(food_box_id),
+  FOREIGN KEY (box_rate_id) REFERENCES Box_Rate(box_rate_id),
+  FOREIGN KEY (purchase_order_id) REFERENCES  Purchase_Order(purchase_order_id),
+  FOREIGN KEY (total_sales_id) REFERENCES Total_Sales(total_sales_id)
+  );
+
+
+INSERT INTO Food_Charism  VALUES 
+  ('Food 1',1,1,1,1,False),
+  ('Food 2',2,2,2,2,False),
+  ('Food 3',3,3,3,3,True),
+  ('Snack 1',4,4,4,4,False),
+  ('Snack 2',5,5,5,5,True) ;
+
+-- Dim table 1.Menu --
+CREATE TABLE Food_Box (
+	Food_box_ID int PRIMARY Key,
+  	Food_Box_Name Text,
+  	Food_Box_Normal_Rate Text,
+  	Food_Box_Rare_Rate TEXT,
+  	Food_Box_Price INT
+ );
+
+ INSERT into Food_Box VALUES
+	(1, 'Spagetti Box', 'Spagetti Bacon Chilli', 'Carbonara Spagetti', 100),
+    (2, 'Fried Rice Box', 'Omelette fried rice', 'Truffle Ham Fried Rice', 70),
+    (3, 'Noodle Box', 'Pad Thai', 'Red Hot Chilli Pepper Noodle', 60),
+    (4, 'Appetizer Box', 'French Fries', 'OnionDeluxe Hash Browns', 60),
+    (5, 'Sweet Box', 'Blue Lemon Jelly', 'RainbowMacaron', 50);
+
+-- Dim table 2.Rate Up --
+
+Create Table Box_Rate (
+	Box_Rate_ID int PRIMARY KEY,
+  	Box_Rate_Name Text,
+  	Box_Rate_Rare Float
+  );
+
+insert into Box_Rate VALUES
+	(1, 'Spagetti Box', 40.50),
+   	(2, 'Fried Rice Box', 35.75),
+    (3, 'Noodle Box', 55.45),
+    (4, 'Appetizer Box', 45.60),
+    (5, 'Sweet Box', 45.75) ;
+    
+
+-- Dim table 3.Purchase_Order --
+
+Create Table Purchase_Order (
+	Purchase_Order_ID int PRIMARY KEY,
+  	Purchase_Order_Amount INT 
+  );
+
+insert into Purchase_Order VALUES
+	(1, 16),
+  (2, 10),
+  (3, 32),
+  (4, 12),
+  (5, 24);
+
+-- Dim table 4.Total Sales --
+
+Create Table Total_Sales (
+	Total_Sales_ID int PRIMARY KEY,
+  	Total_Sales_Normal INT, 
+    Total_Sales_Rare INT, 
+  	Total_Sales_Amount int
+) ;
+
+insert into Total_Sales VALUES
+	(1, 10, 6, 1600),
+   	(2, 5, 5, 700),
+        (3, 10, 22, 1920),
+        (4, 9, 3, 720),
+        (5, 11, 13, 1200);
+
+
+
+-------------------
+
+-- With + When Clause
+
+with subbox as ( 
+  SELECT * from Box_Rate
+join Total_Sales
+on Box_Rate.box_rate_id = Total_Sales.total_sales_id )
+
+SELECT 
+    box_rate_name,
+    box_rate_rare,
+    total_sales_amount,
+ CASE
+ 	When total_sales_amount >= 800 THEN 'HitBox'
+ 	ELSE 'Recommend Box'
+    End As 'Best Seller'
+ From subbox 
+ order by 4 DESC;
+
+--------------------------
+-- With + Where 
+
+WITH Low_Selling AS (
+ SELECT * from Food_Box
+join Food_Charism on Food_Box.food_box_id=Food_Charism.food_box_id
+WHERE best_seller = 0
+ )
+ Select
+ 	best_seller, 
+ 	food_box_name,
+    Round(AVG(food_box_price),2) AVG_Price
+ From low_selling ;
+    
+
+--------------------------
+
+-- 4 join 
+
+SELECT 
+food_charism_id,
+food_box_name,
+food_box_price,
+box_rate_rare,
+total_sales_amount
+FROM Food_Charism AS FC
+join Food_Box AS FB on  FC.food_box_id = FB.food_box_id
+JOIN Box_Rate AS BR on FC.box_rate_id = BR.box_rate_id
+JOIN Purchase_Order AS PO ON FC.purchase_order_id = PO.purchase_order_id
+JOIN Total_Sales AS TS on FC.total_sales_id = TS.Total_Sales_ID ;
+
+-----------------
+
+-- Aggregate 
+
+select 
+	sum(total_sales_normal) AS Bad_Luck,
+    sum(total_sales_rare) AS Good_Luck,
+    avg(total_sales_amount) AS AVG_revenue
+from Total_Sales ;
